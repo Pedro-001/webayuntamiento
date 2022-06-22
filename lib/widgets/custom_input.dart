@@ -36,7 +36,7 @@ class CustomInput extends StatelessWidget {
         controller: textcontroller,
         autocorrect: false,
         keyboardType: keyboardType,
-        //obscureText: false,
+        obscureText: isPassword,
         decoration: InputDecoration(
             prefix: Icon(icon),
             focusedBorder: InputBorder.none,

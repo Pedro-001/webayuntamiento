@@ -45,7 +45,7 @@ class labels extends StatelessWidget {
 //          ),
           GestureDetector(
             onTap: () {
-              Navigator.pushReplacementNamed(context, ruta);
+              Navigator.pushNamed(context, ruta);
             },
             child: Text(
               'Usar como anonimo',

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:webadminayuntamiento/helper/show_alerts.dart';
+import 'package:webadminayuntamiento/services/auth_service.dart';
+import 'package:webadminayuntamiento/services/auth_service.dart';
+import 'package:webadminayuntamiento/services/socket_service.dart';
 import '../widgets/widgets.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -45,6 +50,8 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -71,9 +78,22 @@ class __FormState extends State<_Form> {
           SizedBox(
             width: 300,
             child: Boton(
-                text: 'Ingresar',
-                onPressed: () {
-                  print('olapoperros');
+                text: 'Crear Cuenta',
+                onPressed: () async {
+                  final registerOk = await authService.register(
+                      nombreController.text.trim(),
+                      telController.text.trim(),
+                      descripController.text.trim());
+                  if (registerOk == true) {
+                    //conectar a nuestro socket server
+                    socketService.connect();
+                    //moverse a siguiente pantalla
+                    Navigator.pushReplacementNamed(context, 'map');
+                  } else {
+                    print(registerOk);
+                    mostrarAlerta(context, 'Registro Incorrecto',
+                        'registro incorrecto, completa los datos');
+                  }
                 }),
           )
         ],

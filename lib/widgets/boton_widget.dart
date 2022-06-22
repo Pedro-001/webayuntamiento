@@ -14,7 +14,7 @@ class Boton extends StatelessWidget {
             backgroundColor: MaterialStateProperty.all(Colors.blue),
             elevation: MaterialStateProperty.all(2),
             shape: MaterialStateProperty.all(StadiumBorder())),
-        onPressed: () => this.onPressed(),
+        onPressed: () => onPressed(),
         child: Text(text, style: TextStyle(color: Colors.white, fontSize: 17)));
   }
 }

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:socket_io_client/socket_io_client.dart';
+import 'package:webadminayuntamiento/helper/show_alerts.dart';
+import 'package:webadminayuntamiento/services/auth_service.dart';
+import 'package:webadminayuntamiento/services/socket_service.dart';
 import '../widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -21,15 +26,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   _Form(),
                   const labels(
-                    ruta: 'home',
-                  ),
-                  SizedBox(
-                    width: 300,
-                    child: Boton(
-                        text: 'Ingresar',
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, 'users');
-                        }),
+                    ruta: 'register',
                   ),
                   _TerminosYcondiciones()
                 ],
@@ -44,17 +41,19 @@ class _Form extends StatefulWidget {
   _Form({Key? key}) : super(key: key);
 
   @override
-  State<_Form> createState() => __FormState();
+  State<_Form> createState() => FormState();
 }
 
-class __FormState extends State<_Form> {
-  final nombreController = TextEditingController();
+class FormState extends State<_Form> {
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final telController = TextEditingController();
+  final passController = TextEditingController();
   final descripController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -62,21 +61,38 @@ class __FormState extends State<_Form> {
         children: [
           CustomInput(
             icon: Icons.mail_outline,
-            placeHolder: 'Nombre',
+            placeHolder: 'Email',
             keyboardType: TextInputType.emailAddress,
-            textcontroller: nombreController,
+            textcontroller: emailController,
           ),
           CustomInput(
             icon: Icons.call_end_outlined,
-            placeHolder: 'Telefono',
-            keyboardType: TextInputType.emailAddress,
-            textcontroller: telController,
+            placeHolder: 'Password',
+            textcontroller: passController,
+            isPassword: true,
           ),
-          CustomInput(
-            icon: Icons.comment_bank_outlined,
-            placeHolder: 'Caracteristicas',
-            keyboardType: TextInputType.emailAddress,
-            textcontroller: descripController,
+          SizedBox(
+            width: 300,
+            child: authService.autenticando
+                ? null
+                : Boton(
+                    text: 'Ingresar',
+                    onPressed: () async {
+                      print(emailController.text);
+                      print(passController.text);
+                      final loginOk = await authService.login(
+                          emailController.text.trim(),
+                          passController.text.trim());
+                      if (loginOk) {
+                        //conectar a nuestro socket server
+                        socketService.connect();
+                        //moverse a siguiente pantalla
+                        Navigator.pushReplacementNamed(context, 'users');
+                      } else {
+                        mostrarAlerta(
+                            context, 'Login incorrecto', 'Revise credenciales');
+                      }
+                    }),
           ),
         ],
       ),

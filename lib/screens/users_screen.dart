@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:webadminayuntamiento/models/usuarioTemp.dart';
+import 'package:webadminayuntamiento/services/auth_service.dart';
+import 'package:webadminayuntamiento/services/socket_service.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({Key? key}) : super(key: key);
@@ -100,21 +103,31 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final usuario = authService.usuario;
+    final socketService = Provider.of<SocketService>(context);
     return Scaffold(
         appBar: AppBar(
             title: Text(
-              'Mi Nombre',
+              usuario?.nombre ?? 'Sin Nombre',
+              style: TextStyle(color: Colors.black87),
             ),
             elevation: 1,
-            leading:
-                IconButton(onPressed: () {}, icon: Icon(Icons.exit_to_app)),
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, 'login');
+                  AuthService.deleteToken();
+                  socketService.disconnect();
+                },
+                icon: Icon(Icons.exit_to_app)),
             actions: [
               Container(
                 margin: EdgeInsets.only(
                   right: 10,
                 ),
-                child: Icon(Icons.check_circle, color: Colors.blue[400]),
-                //Icon(Icons.check_circle, color: Colors.red),
+                child: (socketService.serverStatus == ServerStatus.Online)
+                    ? Icon(Icons.check_circle, color: Colors.green[400])
+                    : Icon(Icons.check_circle, color: Colors.red),
               )
             ]),
         body: SmartRefresher(
